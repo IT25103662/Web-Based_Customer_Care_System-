@@ -20,20 +20,6 @@ LankaConnect CCMS is an enterprise-grade, web-based customer care management pla
 | **Premasiri L.H.G.M.J.**| IT25101649 | Developer 4 | **5. Ticket Tracking & Status Updates** (Unique Ticket IDs `TICK-2026-XXXX`, SLA Overdue Alerts, Status History Audit) |
 | **Dissanayake R.D.M.D.V.** | IT25103662 | Scrum Master | **6. Reporting, Monitoring & Spike Alerts** (Executive Dashboard, Trend Visualizations, **Automated Regional Spike Threshold Alerts**) |
 
----
-
-## 🚀 How to Run the Application
-
-### Option 1: 1-Click Batch Runner (Windows)
-Double-click `run.bat` in the project root directory.
-
-### Option 2: Command Line
-```powershell
-.\.maven\apache-maven-3.9.6\bin\mvn.cmd spring-boot:run
-```
-
-Once started, open your browser and navigate to:
-👉 **`http://localhost:8080`**
 
 ---
 
@@ -52,8 +38,3 @@ For rapid grading and demonstration, the login page features **1-Click Quick Log
 | **System Administrator** | `admin` | `123456` | User account management, role & permission modification, security & activity audit logs. |
 
 ---
-
-## 🗄️ Database Information
-- **Configured SQL Credentials**: Username: `sa`, Password: `dimuth2002`
-- **Schema & DDL File**: Located in `src/main/resources/schema.sql`
-- **H2 Database Web Console**: Accessible at `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:ccms_db`, User: `sa`, Password: `dimuth2002`)
