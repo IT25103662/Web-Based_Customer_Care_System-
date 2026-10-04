@@ -21,30 +21,10 @@ public class TicketService {
     private TicketHistoryRepository ticketHistoryRepository;
 
     public Ticket createTicketForComplaint(Long complaintId, String complaintCode, Long customerId, String customerName, String title, String priority, String department) {
-        Ticket ticket = new Ticket();
-        ticket.setComplaintId(complaintId);
-        ticket.setComplaintCode(complaintCode);
-        ticket.setCustomerId(customerId);
-        ticket.setCustomerName(customerName);
-        ticket.setTitle(title);
-        ticket.setPriority(priority != null ? priority.toUpperCase() : "MEDIUM");
-        ticket.setStatus("OPEN");
-        ticket.setAssignedDepartment(department != null ? department : "General Support");
-        ticket.setCreatedAt(LocalDateTime.now());
-        ticket.setUpdatedAt(LocalDateTime.now());
-
-        // SLA Due Date calculation based on Priority
-        int slaDays = switch (ticket.getPriority()) {
-            case "CRITICAL" -> 1;
-            case "HIGH" -> 2;
-            case "MEDIUM" -> 4;
-            default -> 7;
-        };
-        ticket.setDueDate(LocalDateTime.now().plusDays(slaDays));
-
-        // Generate Ticket Code
-        long count = ticketRepository.count() + 1001;
-        ticket.setTicketCode("TICK-2026-" + count);
+        long currentCount = ticketRepository.count();
+        Ticket ticket = com.lankaconnect.ccms.factory.TicketFactory.createTicketForComplaint(
+                complaintId, complaintCode, customerId, customerName, title, priority, department, currentCount
+        );
 
         Ticket saved = ticketRepository.save(ticket);
 
@@ -54,6 +34,7 @@ public class TicketService {
 
         return saved;
     }
+
 
     public Ticket updateTicketStatus(Long ticketId, String newStatus, String changedBy, String userRole, String remarks) {
         Ticket ticket = ticketRepository.findById(ticketId)
@@ -134,7 +115,75 @@ public class TicketService {
         return ticketRepository.findByTicketCode(code);
     }
 
+    public Ticket createStandaloneTicket(Ticket ticket, String creatorName, String userRole) {
+        long currentCount = ticketRepository.count();
+        Ticket createdTicket = com.lankaconnect.ccms.factory.TicketFactory.createStandaloneTicket(ticket, currentCount);
+
+        Ticket saved = ticketRepository.save(createdTicket);
+        logTicketHistory(saved.getId(), saved.getTicketCode(), creatorName != null ? creatorName : "Staff",
+                userRole != null ? userRole : "STAFF", null, saved.getStatus(), "Manually raised ticket");
+
+        return saved;
+    }
+
+
+    public Ticket updateTicket(Long id, Ticket details, String changedBy, String userRole) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
+
+        String prevStatus = ticket.getStatus();
+        if (details.getTitle() != null && !details.getTitle().trim().isEmpty()) {
+            ticket.setTitle(details.getTitle());
+        }
+        if (details.getPriority() != null && !details.getPriority().trim().isEmpty()) {
+            ticket.setPriority(details.getPriority().toUpperCase());
+        }
+        if (details.getStatus() != null && !details.getStatus().trim().isEmpty()) {
+            ticket.setStatus(details.getStatus().toUpperCase());
+        }
+        if (details.getAssignedDepartment() != null && !details.getAssignedDepartment().trim().isEmpty()) {
+            ticket.setAssignedDepartment(details.getAssignedDepartment());
+        }
+        if (details.getAssignedStaffId() != null) {
+            ticket.setAssignedStaffId(details.getAssignedStaffId());
+        }
+        if (details.getAssignedStaffName() != null) {
+            ticket.setAssignedStaffName(details.getAssignedStaffName());
+        }
+        ticket.setUpdatedAt(LocalDateTime.now());
+
+        Ticket saved = ticketRepository.save(ticket);
+        logTicketHistory(saved.getId(), saved.getTicketCode(), changedBy != null ? changedBy : "Staff",
+                userRole != null ? userRole : "STAFF", prevStatus, saved.getStatus(), "Updated ticket details");
+
+        return saved;
+    }
+
+    public void deleteTicket(Long id, String changedBy, String userRole) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
+        ticketHistoryRepository.deleteByTicketId(id);
+        ticketRepository.deleteById(id);
+    }
+
+    public List<Ticket> searchTickets(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return getAllTickets();
+        }
+        List<Ticket> list = ticketRepository.searchTickets(query.trim());
+        LocalDateTime now = LocalDateTime.now();
+        for (Ticket t : list) {
+            if (!"RESOLVED".equalsIgnoreCase(t.getStatus()) && !"CLOSED".equalsIgnoreCase(t.getStatus())) {
+                if (t.getDueDate() != null && t.getDueDate().isBefore(now)) {
+                    t.setOverdue(true);
+                }
+            }
+        }
+        return list;
+    }
+
     public List<TicketHistory> getTicketHistory(Long ticketId) {
         return ticketHistoryRepository.findByTicketIdOrderByTimestampDesc(ticketId);
     }
 }
+

@@ -3,6 +3,7 @@ package com.lankaconnect.ccms.repository;
 import com.lankaconnect.ccms.model.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,6 +19,17 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByStatusOrderByCreatedAtDesc(String status);
     List<Ticket> findAllByOrderByCreatedAtDesc();
 
+    @Query("SELECT t FROM Ticket t WHERE " +
+           "LOWER(t.ticketCode) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(COALESCE(t.complaintCode, '')) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(t.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(COALESCE(t.customerName, '')) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(COALESCE(t.assignedDepartment, '')) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(t.status) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(t.priority) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "ORDER BY t.createdAt DESC")
+    List<Ticket> searchTickets(@Param("query") String query);
+
     @Query("SELECT t.status, COUNT(t) FROM Ticket t GROUP BY t.status")
     List<Object[]> countTicketsByStatus();
 
@@ -26,3 +38,4 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     long countByOverdueTrue();
 }
+
