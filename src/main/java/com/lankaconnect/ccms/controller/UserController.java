@@ -86,8 +86,29 @@ public class UserController {
         }
     }
 
+    @PostMapping
+    public ResponseEntity<?> createUser(@RequestBody User user, HttpServletRequest request) {
+        try {
+            User created = userService.createUser(user, request.getRemoteAddr());
+            return ResponseEntity.ok(created);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            userService.deleteUser(id, request.getRemoteAddr());
+            return ResponseEntity.ok(Map.of("success", true, "message", "User deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/activity-logs")
     public ResponseEntity<List<UserActivityLog>> getActivityLogs() {
         return ResponseEntity.ok(userService.getRecentActivityLogs());
     }
 }
+

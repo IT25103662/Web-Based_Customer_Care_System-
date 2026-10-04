@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,11 +54,14 @@ public class UserService {
     }
 
     public Optional<User> authenticate(String username, String password, String clientIp) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (username == null || password == null) return Optional.empty();
+        String trimmedUser = username.trim();
+        String trimmedPass = password.trim();
+
+        Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(trimmedUser);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            if (user.getPassword().equals(password) && user.isActive()) {
-                // Update loyalty tier dynamically if customer
+            if (user.getPassword().equals(trimmedPass) && user.isActive()) {
                 if ("CUSTOMER".equalsIgnoreCase(user.getRole()) && user.getSubscriptionStartDate() != null) {
                     user.setLoyaltyTier(calculateLoyaltyTier(user.getSubscriptionStartDate()));
                     userRepository.save(user);
@@ -81,16 +83,10 @@ public class UserService {
     }
 
     public String calculateLoyaltyTier(LocalDate subscriptionStartDate) {
-        if (subscriptionStartDate == null) return "BRONZE";
-        long months = ChronoUnit.MONTHS.between(subscriptionStartDate, LocalDate.now());
-        if (months >= 12) {
-            return "GOLD";
-        } else if (months >= 6) {
-            return "SILVER";
-        } else {
-            return "BRONZE";
-        }
+        com.lankaconnect.ccms.strategy.LoyaltyTierStrategy strategy = com.lankaconnect.ccms.strategy.LoyaltyStrategyContext.determineStrategy(subscriptionStartDate);
+        return strategy.getTierName();
     }
+
 
     public User updateProfile(Long userId, String fullName, String phone, String email, String clientIp) {
         User user = userRepository.findById(userId)
@@ -149,6 +145,42 @@ public class UserService {
         return saved;
     }
 
+    public User createUser(User user, String clientIp) {
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        if (user.getRole() == null || user.getRole().trim().isEmpty()) {
+            user.setRole("CUSTOMER");
+        } else {
+            user.setRole(user.getRole().toUpperCase());
+        }
+        if ("CUSTOMER".equalsIgnoreCase(user.getRole())) {
+            if (user.getSubscriptionStartDate() == null) {
+                user.setSubscriptionStartDate(LocalDate.now());
+            }
+            user.setLoyaltyTier(calculateLoyaltyTier(user.getSubscriptionStartDate()));
+        }
+        user.setActive(true);
+        user.setVerified(true);
+        user.setCreatedAt(LocalDateTime.now());
+
+        User saved = userRepository.save(user);
+        logActivity(saved.getId(), saved.getUsername(), saved.getRole(),
+                "CREATE_USER", "Created user " + saved.getUsername() + " with role " + saved.getRole(), clientIp);
+        return saved;
+    }
+
+    public void deleteUser(Long id, String clientIp) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        userRepository.deleteById(id);
+        logActivity(id, user.getUsername(), user.getRole(),
+                "DELETE_USER", "Deleted user " + user.getUsername(), clientIp);
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -170,3 +202,4 @@ public class UserService {
         return activityLogRepository.findTop100ByOrderByTimestampDesc();
     }
 }
+
