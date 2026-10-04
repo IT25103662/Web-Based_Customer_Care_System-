@@ -148,6 +148,30 @@ public class ChatService {
         return sessionRepository.findById(id);
     }
 
+    public ChatMessage updateChatMessage(Long messageId, String newMessage) {
+        ChatMessage msg = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Chat message not found"));
+        msg.setMessage(newMessage);
+        return messageRepository.save(msg);
+    }
+
+    public ChatSession updateChatSessionTopic(Long sessionId, String newTopic) {
+        ChatSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Chat session not found"));
+        session.setTopic(newTopic);
+        session.setUpdatedAt(LocalDateTime.now());
+        return sessionRepository.save(session);
+    }
+
+    public void deleteChatSession(Long sessionId) {
+        messageRepository.deleteBySessionId(sessionId);
+        sessionRepository.deleteById(sessionId);
+    }
+
+    public void deleteChatMessage(Long messageId) {
+        messageRepository.deleteById(messageId);
+    }
+
     public ChatSession closeSession(Long sessionId, Long userId, String username, String userRole, String clientIp) {
         ChatSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Chat session not found"));
@@ -170,3 +194,4 @@ public class ChatService {
         return saved;
     }
 }
+
