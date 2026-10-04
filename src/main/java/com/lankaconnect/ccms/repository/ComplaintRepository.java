@@ -31,4 +31,7 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 
     @Query("SELECT c.status, COUNT(c) FROM Complaint c GROUP BY c.status")
     List<Object[]> countComplaintsByStatus();
+
+    @Query("SELECT c FROM Complaint c WHERE c.createdAt >= :startDate AND c.createdAt <= :endDate ORDER BY c.createdAt DESC")
+    List<Complaint> findComplaintsBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }

@@ -91,4 +91,25 @@ public class ComplaintController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateComplaint(@PathVariable Long id, @RequestBody Complaint complaint, HttpServletRequest request) {
+        try {
+            Complaint updated = complaintService.updateComplaint(id, complaint, request.getRemoteAddr());
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteComplaint(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            complaintService.deleteComplaint(id, request.getRemoteAddr());
+            return ResponseEntity.ok(Map.of("success", true, "message", "Complaint deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
+
