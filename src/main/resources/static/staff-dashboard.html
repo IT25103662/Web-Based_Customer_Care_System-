@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Department Staff Investigation Portal | LankaConnect CCMS</title>
+    <title>Department Staff & Technical Ticket Desk | LankaConnect CCMS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
@@ -15,7 +15,7 @@
         <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
                 <span class="brand-badge"><i class="bi bi-tools me-2"></i>LankaConnect</span>
-                <span class="fw-bold text-dark ms-2">Department Staff & QA Investigation Console</span>
+                <span class="fw-bold text-dark ms-2">Technical Staff Investigation & Ticket Search Console</span>
             </div>
             <div id="navbarUserSnippet"></div>
         </div>
@@ -60,11 +60,75 @@
             </div>
         </div>
 
-        <!-- Task List Card -->
-        <div class="card card-custom p-0 border-0 shadow-sm overflow-hidden">
-            <div class="bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+        <!-- PROMINENT TICKET SEARCH DESK (CARD 1) -->
+        <div class="card card-custom p-4 border-0 shadow-sm mb-4 bg-white">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-1"><i class="bi bi-search text-primary me-2"></i>Technical Ticket & Complaint Search Option</h5>
+                    <p class="text-muted small mb-0">Search support tickets by ticket code (e.g. TICK-2026-1001), complaint ref, customer name, title, status, priority, or department.</p>
+                </div>
+                <button class="btn btn-primary fw-bold" onclick="openCreateTicketModal()">
+                    <i class="bi bi-plus-circle me-1"></i> Create New Ticket
+                </button>
+            </div>
+
+            <!-- Search Inputs & Filters -->
+            <div class="row g-2 mb-3">
+                <div class="col-lg-6 col-md-12">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" id="ticketSearchQuery" class="form-control form-control-lg" placeholder="Type ticket code (e.g. TICK-2026-1001), complaint code, customer, title..." onkeyup="performStaffSearch()">
+                        <button class="btn btn-primary fw-bold px-4" onclick="performStaffSearch()"><i class="bi bi-search me-1"></i> Search</button>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <select id="ticketStatusFilter" class="form-select form-select-lg" onchange="performStaffSearch()">
+                        <option value="">All Statuses</option>
+                        <option value="OPEN">OPEN</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="RESOLVED">RESOLVED</option>
+                        <option value="CLOSED">CLOSED</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <select id="ticketPriorityFilter" class="form-select form-select-lg" onchange="performStaffSearch()">
+                        <option value="">All Priorities</option>
+                        <option value="CRITICAL">CRITICAL</option>
+                        <option value="HIGH">HIGH</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="LOW">LOW</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Ticket Search Results Table -->
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Ticket Code</th>
+                            <th>Complaint Ref</th>
+                            <th>Customer Name</th>
+                            <th>Issue Title</th>
+                            <th>Department</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>SLA Target Date</th>
+                            <th>Actions (CRUD)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketSearchTableBody">
+                        <tr><td colspan="9" class="text-center py-4 text-muted">Loading system tickets...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Task List Card (CARD 2: Technical Investigation Queue) -->
+        <div class="card card-custom p-0 border-0 shadow-sm overflow-hidden mb-4">
+            <div class="bg-white border-bottom p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div class="d-flex align-items-center gap-3">
-                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clipboard2-pulse me-2 text-primary"></i>My Technical Investigation Queue</h5>
+                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clipboard2-pulse me-2 text-primary"></i>My Assigned Technical Investigation Queue</h5>
                     <div class="btn-group btn-group-sm" role="group">
                         <button type="button" class="btn btn-outline-secondary active" onclick="filterStaffTasks('ALL')">All</button>
                         <button type="button" class="btn btn-outline-secondary" onclick="filterStaffTasks('ACTIVE')">Pending Action</button>
@@ -86,7 +150,7 @@
                                 <th>Priority</th>
                                 <th>Status</th>
                                 <th>Assigned Date</th>
-                                <th>Investigation Action</th>
+                                <th>Actions (CRUD)</th>
                             </tr>
                         </thead>
                         <tbody id="staffTasksTableBody">
@@ -148,6 +212,104 @@
         </div>
     </div>
 
+    <!-- Modal: Create / Edit Ticket (Ticket CRUD) -->
+    <div class="modal fade" id="ticketCrudModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="ticketModalTitle"><i class="bi bi-ticket-perforated me-2"></i>Create Ticket</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="ticketCrudForm" onsubmit="saveTicketCrud(event)">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="crudTicketId">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold small text-muted">Ticket Title *</label>
+                                <input type="text" id="crudTicketTitle" class="form-control" required placeholder="e.g. Fiber Link Latency & Packet Loss Issue">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">Customer Name</label>
+                                <input type="text" id="crudTicketCustomer" class="form-control" placeholder="e.g. Kasun Perera">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">Complaint Reference Code</label>
+                                <input type="text" id="crudTicketComplaintCode" class="form-control" placeholder="e.g. CMP-2026-1001">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-muted">Assigned Department</label>
+                                <select id="crudTicketDepartment" class="form-select">
+                                    <option value="Technical Department">Technical Department</option>
+                                    <option value="Billing Department">Billing Department</option>
+                                    <option value="Network Department">Network Department</option>
+                                    <option value="Customer Operations">Customer Operations</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-muted">Priority</label>
+                                <select id="crudTicketPriority" class="form-select">
+                                    <option value="CRITICAL">CRITICAL</option>
+                                    <option value="HIGH">HIGH</option>
+                                    <option value="MEDIUM" selected>MEDIUM</option>
+                                    <option value="LOW">LOW</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-muted">Status</label>
+                                <select id="crudTicketStatus" class="form-select">
+                                    <option value="OPEN">OPEN</option>
+                                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                                    <option value="RESOLVED">RESOLVED</option>
+                                    <option value="CLOSED">CLOSED</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4">
+                            <i class="bi bi-check-lg me-1"></i> Save Ticket
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: View Ticket Audit History -->
+    <div class="modal fade" id="ticketAuditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-clock-history me-2"></i>Ticket Audit & Status History</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h6 class="fw-bold mb-3 text-primary" id="auditTicketCodeTitle">Ticket History</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Changed By</th>
+                                    <th>Role</th>
+                                    <th>Status Change</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticketAuditTableBody">
+                                <tr><td colspan="5" class="text-center py-3 text-muted">Loading audit history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/app.js"></script>
@@ -155,17 +317,18 @@
     <script>
         let currentStaff = null;
         let staffComplaints = [];
+        let searchTicketsList = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
             currentStaff = await App.initAuth(['STAFF', 'ADMIN']);
             if (currentStaff) {
                 await loadStaffData();
+                await performStaffSearch();
             }
         });
 
         async function loadStaffData() {
             try {
-                // Fetch complaints assigned to this staff or general department
                 const res = await fetch(`/api/complaints`);
                 const all = await res.json();
                 
@@ -174,12 +337,10 @@
                     (!c.assignedStaffId && c.assignedDepartment && currentStaff.department && c.assignedDepartment.toLowerCase().includes(currentStaff.department.toLowerCase().split(' ')[0]))
                 );
 
-                // If none assigned specifically yet, show department tasks
                 if (staffComplaints.length === 0) {
                     staffComplaints = all;
                 }
 
-                // KPIs
                 document.getElementById('statMyAssigned').innerText = staffComplaints.length;
                 const underInv = staffComplaints.filter(c => c.status === 'IN_INVESTIGATION' || c.status === 'ASSIGNED').length;
                 const resolved = staffComplaints.filter(c => c.status === 'RESOLVED' || c.status === 'CLOSED').length;
@@ -194,6 +355,8 @@
         }
 
         function filterStaffTasks(filter) {
+            document.querySelectorAll('#staffTasksTableBody').forEach(b => b.classList.remove('active'));
+
             if (filter === 'ALL') {
                 renderTasksTable(staffComplaints);
             } else if (filter === 'ACTIVE') {
@@ -205,7 +368,7 @@
 
         function renderTasksTable(items) {
             const tbody = document.getElementById('staffTasksTableBody');
-            if (items.length === 0) {
+            if (!items || items.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No assigned complaints matching filter</td></tr>';
                 return;
             }
@@ -214,7 +377,7 @@
                 <tr>
                     <td class="fw-bold text-primary">${c.complaintCode}</td>
                     <td>
-                        <div class="fw-semibold text-dark">${c.customerName}</div>
+                        <div class="fw-semibold text-dark">${c.customerName || 'Customer'}</div>
                         <small class="text-muted">${c.customerPhone || c.customerEmail || ''}</small>
                     </td>
                     <td>
@@ -229,12 +392,32 @@
                     <td>${App.renderStatus(c.status)}</td>
                     <td>${App.formatDate(c.createdAt)}</td>
                     <td>
-                        <button class="btn btn-sm btn-primary fw-bold" onclick="openInvestigateModal(${c.id})">
-                            <i class="bi bi-pencil-square me-1"></i> Investigate
-                        </button>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-primary fw-bold" onclick="openInvestigateModal(${c.id})">
+                                <i class="bi bi-pencil-square me-1"></i> Investigate
+                            </button>
+                            <button class="btn btn-outline-danger" title="Delete Complaint" onclick="deleteComplaintCrud(${c.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
+        }
+
+        async function deleteComplaintCrud(id) {
+            if (!confirm('Are you sure you want to delete this complaint record?')) return;
+            try {
+                const res = await fetch(`/api/complaints/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    App.showToast('Complaint deleted successfully', 'success');
+                    await loadStaffData();
+                } else {
+                    App.showToast('Failed to delete complaint', 'danger');
+                }
+            } catch (e) {
+                App.showToast('Error deleting complaint', 'danger');
+            }
         }
 
         function openInvestigateModal(complaintId) {
@@ -276,11 +459,186 @@
                     App.showToast('Investigation findings and status recorded successfully!', 'success');
                     bootstrap.Modal.getInstance(document.getElementById('investigateModal')).hide();
                     await loadStaffData();
+                    await performStaffSearch();
                 } else {
                     App.showToast('Failed to update status', 'danger');
                 }
             } catch (e) {
                 App.showToast('Error saving investigation', 'danger');
+            }
+        }
+
+        // --- TECHNICAL TICKET SEARCH & CRUD DESK ---
+        async function performStaffSearch() {
+            const q = document.getElementById('ticketSearchQuery').value.trim();
+            const statusFilter = document.getElementById('ticketStatusFilter').value;
+            const priorityFilter = document.getElementById('ticketPriorityFilter').value;
+
+            try {
+                const res = await fetch(`/api/tickets/search?query=${encodeURIComponent(q)}`);
+                let tickets = await res.json();
+
+                if (statusFilter) {
+                    tickets = tickets.filter(t => t.status === statusFilter);
+                }
+                if (priorityFilter) {
+                    tickets = tickets.filter(t => t.priority === priorityFilter);
+                }
+
+                searchTicketsList = tickets;
+                renderTicketSearchTable(tickets);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderTicketSearchTable(tickets) {
+            const tbody = document.getElementById('ticketSearchTableBody');
+            if (!tickets || tickets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No tickets found matching query.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = tickets.map(t => `
+                <tr class="${t.overdue ? 'table-danger' : ''}">
+                    <td class="fw-bold text-primary">
+                        ${t.ticketCode}
+                        ${t.overdue ? '<span class="badge bg-danger ms-1">OVERDUE</span>' : ''}
+                    </td>
+                    <td><small class="fw-semibold text-secondary">${t.complaintCode || 'N/A'}</small></td>
+                    <td><span class="fw-semibold text-dark">${t.customerName || 'Customer'}</span></td>
+                    <td><span class="fw-semibold text-dark">${t.title}</span></td>
+                    <td><span class="badge bg-light text-dark border">${t.assignedDepartment || 'General Support'}</span></td>
+                    <td>${App.renderPriority(t.priority)}</td>
+                    <td>${App.renderStatus(t.status)}</td>
+                    <td><small class="text-muted">${App.formatDate(t.dueDate)}</small></td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-info" title="View Audit History" onclick="viewTicketHistory(${t.id}, '${t.ticketCode}')">
+                                <i class="bi bi-clock-history"></i>
+                            </button>
+                            <button class="btn btn-outline-primary" title="Edit Ticket (Update)" onclick="openEditTicketModal(${t.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" title="Delete Ticket" onclick="deleteTicketCrud(${t.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openCreateTicketModal() {
+            document.getElementById('ticketModalTitle').innerText = 'Create New Ticket';
+            document.getElementById('crudTicketId').value = '';
+            document.getElementById('crudTicketTitle').value = '';
+            document.getElementById('crudTicketCustomer').value = '';
+            document.getElementById('crudTicketComplaintCode').value = '';
+            document.getElementById('crudTicketDepartment').value = 'Technical Department';
+            document.getElementById('crudTicketPriority').value = 'MEDIUM';
+            document.getElementById('crudTicketStatus').value = 'OPEN';
+
+            const modal = new bootstrap.Modal(document.getElementById('ticketCrudModal'));
+            modal.show();
+        }
+
+        function openEditTicketModal(ticketId) {
+            const ticket = searchTicketsList.find(t => t.id === ticketId);
+            if (!ticket) return;
+
+            document.getElementById('ticketModalTitle').innerText = 'Edit Ticket Details';
+            document.getElementById('crudTicketId').value = ticket.id;
+            document.getElementById('crudTicketTitle').value = ticket.title;
+            document.getElementById('crudTicketCustomer').value = ticket.customerName || '';
+            document.getElementById('crudTicketComplaintCode').value = ticket.complaintCode || '';
+            document.getElementById('crudTicketDepartment').value = ticket.assignedDepartment || 'Technical Department';
+            document.getElementById('crudTicketPriority').value = ticket.priority || 'MEDIUM';
+            document.getElementById('crudTicketStatus').value = ticket.status || 'OPEN';
+
+            const modal = new bootstrap.Modal(document.getElementById('ticketCrudModal'));
+            modal.show();
+        }
+
+        async function saveTicketCrud(e) {
+            e.preventDefault();
+            const id = document.getElementById('crudTicketId').value;
+            const payload = {
+                title: document.getElementById('crudTicketTitle').value.trim(),
+                customerName: document.getElementById('crudTicketCustomer').value.trim(),
+                complaintCode: document.getElementById('crudTicketComplaintCode').value.trim(),
+                assignedDepartment: document.getElementById('crudTicketDepartment').value,
+                priority: document.getElementById('crudTicketPriority').value,
+                status: document.getElementById('crudTicketStatus').value,
+                assignedStaffId: currentStaff.id,
+                assignedStaffName: currentStaff.fullName
+            };
+
+            try {
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `/api/tickets/${id}` : '/api/tickets';
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    App.showToast(`Ticket ${id ? 'updated' : 'created'} successfully!`, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('ticketCrudModal')).hide();
+                    await performStaffSearch();
+                } else {
+                    App.showToast('Failed to save ticket', 'danger');
+                }
+            } catch (err) {
+                App.showToast('Error saving ticket', 'danger');
+            }
+        }
+
+        async function deleteTicketCrud(id) {
+            if (!confirm('Are you sure you want to delete this ticket?')) return;
+            try {
+                const res = await fetch(`/api/tickets/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    App.showToast('Ticket deleted successfully', 'success');
+                    await performStaffSearch();
+                } else {
+                    App.showToast('Failed to delete ticket', 'danger');
+                }
+            } catch (e) {
+                App.showToast('Error deleting ticket', 'danger');
+            }
+        }
+
+        async function viewTicketHistory(ticketId, ticketCode) {
+            document.getElementById('auditTicketCodeTitle').innerText = `Audit History for Ticket: ${ticketCode}`;
+            const tbody = document.getElementById('ticketAuditTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Loading audit history...</td></tr>';
+
+            const modal = new bootstrap.Modal(document.getElementById('ticketAuditModal'));
+            modal.show();
+
+            try {
+                const res = await fetch(`/api/tickets/${ticketId}/history`);
+                const history = await res.json();
+                if (history.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No history audit records found.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = history.map(h => `
+                    <tr>
+                        <td><small>${App.formatDate(h.timestamp)}</small></td>
+                        <td class="fw-bold">${h.changedBy || 'System'}</td>
+                        <td><span class="badge bg-light text-dark border">${h.userRole || 'SYSTEM'}</span></td>
+                        <td>
+                            ${h.previousStatus ? `<span class="badge bg-secondary">${h.previousStatus}</span> <i class="bi bi-arrow-right small"></i> ` : ''}
+                            <span class="badge bg-primary">${h.newStatus}</span>
+                        </td>
+                        <td><small class="text-muted">${h.remarks || ''}</small></td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-3">Error loading audit history.</td></tr>';
             }
         }
     </script>
