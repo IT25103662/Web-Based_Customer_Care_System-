@@ -2,9 +2,7 @@ package com.lankaconnect.ccms.service;
 
 import com.lankaconnect.ccms.model.Complaint;
 import com.lankaconnect.ccms.model.Ticket;
-import com.lankaconnect.ccms.model.User;
 import com.lankaconnect.ccms.repository.ComplaintRepository;
-import com.lankaconnect.ccms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +21,6 @@ public class ComplaintService {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private UserRepository userRepository;
 
     public Complaint submitComplaint(Complaint complaint, String clientIp) {
         long count = complaintRepository.count() + 1001;
@@ -129,6 +124,49 @@ public class ComplaintService {
         return saved;
     }
 
+    public Complaint updateComplaint(Long id, Complaint details, String clientIp) {
+        Complaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Complaint not found"));
+
+        if (details.getTitle() != null && !details.getTitle().trim().isEmpty()) {
+            complaint.setTitle(details.getTitle());
+        }
+        if (details.getCategory() != null && !details.getCategory().trim().isEmpty()) {
+            complaint.setCategory(details.getCategory());
+        }
+        if (details.getDescription() != null && !details.getDescription().trim().isEmpty()) {
+            complaint.setDescription(details.getDescription());
+        }
+        if (details.getRegion() != null && !details.getRegion().trim().isEmpty()) {
+            complaint.setRegion(details.getRegion());
+        }
+        if (details.getPriority() != null && !details.getPriority().trim().isEmpty()) {
+            complaint.setPriority(details.getPriority().toUpperCase());
+        }
+        if (details.getAssignedDepartment() != null && !details.getAssignedDepartment().trim().isEmpty()) {
+            complaint.setAssignedDepartment(details.getAssignedDepartment());
+        }
+        if (details.getStatus() != null && !details.getStatus().trim().isEmpty()) {
+            complaint.setStatus(details.getStatus().toUpperCase());
+        }
+        if (details.getResolutionNotes() != null) {
+            complaint.setResolutionNotes(details.getResolutionNotes());
+        }
+
+        Complaint saved = complaintRepository.save(complaint);
+        userService.logActivity(saved.getCustomerId(), saved.getCustomerName(), "USER",
+                "UPDATE_COMPLAINT_DETAILS", "Updated complaint " + saved.getComplaintCode(), clientIp);
+        return saved;
+    }
+
+    public void deleteComplaint(Long id, String clientIp) {
+        Complaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Complaint not found"));
+        complaintRepository.deleteById(id);
+        userService.logActivity(complaint.getCustomerId(), complaint.getCustomerName(), "USER",
+                "DELETE_COMPLAINT", "Deleted complaint " + complaint.getComplaintCode(), clientIp);
+    }
+
     public List<Complaint> getAllComplaints() {
         return complaintRepository.findAllByOrderByCreatedAtDesc();
     }
@@ -153,3 +191,4 @@ public class ComplaintService {
         return complaintRepository.findByComplaintCode(code);
     }
 }
+
