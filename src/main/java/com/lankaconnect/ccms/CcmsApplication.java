@@ -27,7 +27,6 @@ public class CcmsApplication {
             UserRepository userRepository,
             UserService userService,
             ComplaintService complaintService,
-            ComplaintRepository complaintRepository,
             TicketRepository ticketRepository,
             FeedbackService feedbackService,
             AlertThresholdRepository thresholdRepository,

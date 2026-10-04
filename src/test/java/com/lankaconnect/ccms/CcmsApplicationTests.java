@@ -36,18 +36,19 @@ class CcmsApplicationTests {
 
     @Test
     void testFunction1_UserAccountManagementAndLoyaltyTiers() {
+        long ts = System.currentTimeMillis();
         // Customer 1: >12 months -> Gold
-        User goldCust = new User("test_gold", "pass123", "Gold Member", "gold@test.com", "0771112233", "CUSTOMER", null, LocalDate.now().minusMonths(15));
+        User goldCust = new User("test_gold_" + ts, "pass123", "Gold Member", "gold_" + ts + "@test.com", "0771112233", "CUSTOMER", null, LocalDate.now().minusMonths(15));
         User savedGold = userService.registerUser(goldCust, "127.0.0.1");
         assertEquals("GOLD", savedGold.getLoyaltyTier(), "Loyalty tier for >12 months should be GOLD");
 
         // Customer 2: 7 months -> Silver
-        User silverCust = new User("test_silver", "pass123", "Silver Member", "silver@test.com", "0772223344", "CUSTOMER", null, LocalDate.now().minusMonths(7));
+        User silverCust = new User("test_silver_" + ts, "pass123", "Silver Member", "silver_" + ts + "@test.com", "0772223344", "CUSTOMER", null, LocalDate.now().minusMonths(7));
         User savedSilver = userService.registerUser(silverCust, "127.0.0.1");
         assertEquals("SILVER", savedSilver.getLoyaltyTier(), "Loyalty tier for 6-12 months should be SILVER");
 
         // Staff / Admin should NOT have loyalty tier
-        User staff = new User("test_staff_qa", "pass123", "Staff QA", "qa@test.com", "0773334455", "STAFF", "Technical Department", null);
+        User staff = new User("test_staff_qa_" + ts, "pass123", "Staff QA", "qa_" + ts + "@test.com", "0773334455", "STAFF", "Technical Department", null);
         User savedStaff = userService.registerUser(staff, "127.0.0.1");
         assertNull(savedStaff.getLoyaltyTier(), "Staff must not have a loyalty tier badge");
     }
