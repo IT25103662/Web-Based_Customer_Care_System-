@@ -108,6 +108,55 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getSessionsByCustomer(customerId));
     }
 
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<?> getSessionById(@PathVariable Long sessionId) {
+        return chatService.getSessionById(sessionId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/messages/{messageId}")
+    public ResponseEntity<?> updateMessage(@PathVariable Long messageId, @RequestBody Map<String, String> payload) {
+        try {
+            String message = payload.get("message");
+            ChatMessage updated = chatService.updateChatMessage(messageId, message);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/sessions/{sessionId}")
+    public ResponseEntity<?> updateSessionTopic(@PathVariable Long sessionId, @RequestBody Map<String, String> payload) {
+        try {
+            String topic = payload.get("topic");
+            ChatSession updated = chatService.updateChatSessionTopic(sessionId, topic);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/sessions/{sessionId}")
+    public ResponseEntity<?> deleteSession(@PathVariable Long sessionId) {
+        try {
+            chatService.deleteChatSession(sessionId);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Chat session deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/messages/{messageId}")
+    public ResponseEntity<?> deleteMessage(@PathVariable Long messageId) {
+        try {
+            chatService.deleteChatMessage(messageId);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Chat message deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/close/{sessionId}")
     public ResponseEntity<?> closeChat(@PathVariable Long sessionId, @RequestBody Map<String, Object> payload, HttpServletRequest request) {
         try {
@@ -122,3 +171,4 @@ public class ChatController {
         }
     }
 }
+
