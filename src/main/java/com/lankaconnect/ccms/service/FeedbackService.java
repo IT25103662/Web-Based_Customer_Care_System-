@@ -19,7 +19,7 @@ public class FeedbackService {
 
     @Autowired
     private UserService userService;
-//c
+
     public Feedback submitFeedback(Feedback feedback, String clientIp) {
         feedback.setCreatedAt(LocalDateTime.now());
         if (feedback.getRating() <= 2) {
@@ -71,7 +71,6 @@ public class FeedbackService {
         metrics.put("averageRating", roundedAvg);
 
         // Rating breakdown
-        //vali
         List<Object[]> ratingCounts = feedbackRepository.countFeedbackByRating();
         Map<Integer, Long> breakdown = new HashMap<>();
         for (int i = 1; i <= 5; i++) breakdown.put(i, 0L);
@@ -97,6 +96,43 @@ public class FeedbackService {
         return feedbackRepository.findByNegativeFollowUpRequiredTrueOrderByCreatedAtDesc();
     }
 
+    public Feedback updateFeedback(Long id, Feedback details, String clientIp) {
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Feedback not found"));
+
+        if (details.getRating() > 0) {
+            feedback.setRating(details.getRating());
+            if (details.getRating() <= 2) {
+                feedback.setNegativeFollowUpRequired(true);
+                if (feedback.getFollowUpStatus() == null || "N/A".equalsIgnoreCase(feedback.getFollowUpStatus())) {
+                    feedback.setFollowUpStatus("PENDING");
+                }
+            } else {
+                feedback.setNegativeFollowUpRequired(false);
+                feedback.setFollowUpStatus("N/A");
+            }
+        }
+        if (details.getCategory() != null && !details.getCategory().trim().isEmpty()) {
+            feedback.setCategory(details.getCategory());
+        }
+        if (details.getComments() != null) {
+            feedback.setComments(details.getComments());
+        }
+
+        Feedback saved = feedbackRepository.save(feedback);
+        userService.logActivity(saved.getCustomerId(), saved.getCustomerName(), "USER",
+                "UPDATE_FEEDBACK", "Updated Feedback #" + id, clientIp);
+        return saved;
+    }
+
+    public void deleteFeedback(Long id, String clientIp) {
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Feedback not found"));
+        feedbackRepository.deleteById(id);
+        userService.logActivity(feedback.getCustomerId(), feedback.getCustomerName(), "USER",
+                "DELETE_FEEDBACK", "Deleted Feedback #" + id, clientIp);
+    }
+
     public Optional<Feedback> getFeedbackById(Long id) {
         return feedbackRepository.findById(id);
     }
@@ -105,3 +141,4 @@ public class FeedbackService {
         return feedbackRepository.findByTicketId(ticketId);
     }
 }
+

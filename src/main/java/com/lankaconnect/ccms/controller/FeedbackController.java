@@ -18,7 +18,6 @@ public class FeedbackController {
     private FeedbackService feedbackService;
 
     @PostMapping
-    //c
     public ResponseEntity<?> submitFeedback(@RequestBody Feedback feedback, HttpServletRequest request) {
         try {
             Feedback saved = feedbackService.submitFeedback(feedback, request.getRemoteAddr());
@@ -27,7 +26,7 @@ public class FeedbackController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-//r
+
     @GetMapping
     public ResponseEntity<List<Feedback>> getAllFeedback() {
         return ResponseEntity.ok(feedbackService.getAllFeedback());
@@ -37,7 +36,7 @@ public class FeedbackController {
     public ResponseEntity<Map<String, Object>> getCsatMetrics() {
         return ResponseEntity.ok(feedbackService.getCsatMetrics());
     }
-//r
+
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<Feedback>> getCustomerFeedback(@PathVariable Long customerId) {
         return ResponseEntity.ok(feedbackService.getCustomerFeedback(customerId));
@@ -48,7 +47,13 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.getNegativeFeedbackRequiringFollowUp());
     }
 
-    //u
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getFeedbackById(@PathVariable Long id) {
+        return feedbackService.getFeedbackById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PutMapping("/{id}/followup")
     public ResponseEntity<?> updateFollowUp(@PathVariable Long id, @RequestBody Map<String, String> payload, HttpServletRequest request) {
         try {
@@ -63,4 +68,26 @@ public class FeedbackController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateFeedback(@PathVariable Long id, @RequestBody Feedback feedback, HttpServletRequest request) {
+        try {
+            Feedback updated = feedbackService.updateFeedback(id, feedback, request.getRemoteAddr());
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteFeedback(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            feedbackService.deleteFeedback(id, request.getRemoteAddr());
+            return ResponseEntity.ok(Map.of("success", true, "message", "Feedback deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
+
+
