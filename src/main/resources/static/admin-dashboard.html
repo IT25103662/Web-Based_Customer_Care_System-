@@ -333,13 +333,19 @@
                             </td>
                             <td>${App.formatDate(u.createdAt)}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-dark" onclick="openEditUserModal(${u.id})">
-                                    <i class="bi bi-gear-fill"></i> Edit
-                                </button>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-sm btn-outline-dark" onclick="openEditUserModal(${u.id})">
+                                        <i class="bi bi-gear-fill"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUserCrud(${u.id})">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
                 }).join('');
+
 
             } catch (e) {
                 console.error(e);
@@ -445,6 +451,23 @@
                 App.showToast('Network error creating user', 'danger');
             }
         }
+
+        async function deleteUserCrud(id) {
+            if (!confirm('Are you sure you want to delete this user account?')) return;
+            try {
+                const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    App.showToast('User account deleted successfully', 'success');
+                    await loadAdminData();
+                } else {
+                    App.showToast('Failed to delete user', 'danger');
+                }
+            } catch (e) {
+                App.showToast('Error deleting user', 'danger');
+            }
+        }
     </script>
 </body>
 </html>
+
+
