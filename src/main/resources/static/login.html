@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
 
     <!-- Top header -->
     <header class="navbar-custom">
@@ -17,16 +17,15 @@
                 <span class="brand-badge"><i class="bi bi-headset me-2"></i>LankaConnect</span>
                 <span class="text-muted small d-none d-sm-inline">| Enterprise Customer Care Platform</span>
             </div>
-
         </div>
     </header>
 
-    <div class="container py-5">
-        <div class="row justify-content-center g-4">
+    <div class="container my-auto py-5">
+        <div class="row justify-content-center">
             
-            <!-- Left Column: Login / Register Box -->
-            <div class="col-lg-5 col-md-8">
-                <div class="card card-custom p-4 shadow-sm border-0">
+            <!-- Centered Login / Register Box -->
+            <div class="col-lg-5 col-md-7 col-sm-10">
+                <div class="card card-custom p-4 shadow-lg border-0">
                     <div class="text-center mb-4">
                         <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 56px; height: 56px;">
                             <i class="bi bi-lock-fill fs-3"></i>
@@ -53,7 +52,7 @@
                                     <label class="form-label small fw-bold text-muted">Username</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
-                                        <input type="text" id="loginUsername" class="form-control" placeholder="e.g. customer1 or manager" required>
+                                        <input type="text" id="loginUsername" class="form-control" placeholder="e.g. customer1 or admin" required>
                                     </div>
                                 </div>
                                 <div class="mb-3">
@@ -68,7 +67,6 @@
                                         <input class="form-check-input" type="checkbox" id="rememberMe" checked>
                                         <label class="form-check-label small text-muted" for="rememberMe">Remember me</label>
                                     </div>
-                                    <a href="javascript:void(0)" onclick="alert('For academic evaluation, please use the Quick Login switchers below or reset via Admin.')" class="small text-primary text-decoration-none">Forgot password?</a>
                                 </div>
                                 <button type="submit" id="loginBtn" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
                                     <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
@@ -117,142 +115,6 @@
                 </div>
             </div>
 
-            <!-- Right Column: 1-Click Role Switcher Demo Cards for Evaluators -->
-            <div class="col-lg-7 col-md-10">
-                <div class="card card-custom p-4 bg-white border-0 shadow-sm">
-                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-                        <div>
-                            <h5 class="fw-bold text-dark mb-0"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Evaluator Quick-Login Switcher</h5>
-                            <small class="text-muted">Click any role card below to test and evaluate the system instantly</small>
-                        </div>
-                        <span class="badge bg-light text-dark border">6 Roles Available</span>
-                    </div>
-
-                    <div class="row g-3">
-                        <!-- Customer 1 (Gold) -->
-                        <div class="col-sm-6">
-                            <div class="card h-100 border p-3 card-custom" style="cursor: pointer;" onclick="quickLogin('customer1', '123456')">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-primary-subtle text-primary p-2">
-                                            <i class="bi bi-person-fill fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">Kasun Perera</div>
-                                            <small class="text-muted">Role: Customer</small>
-                                        </div>
-                                    </div>
-                                    <span class="badge-gold" style="font-size: 0.65rem;">GOLD</span>
-                                </div>
-                                <small class="text-muted">Submit complaints, track tickets, live chat with agent, rate CSAT.</small>
-                                <div class="mt-2 text-primary fw-bold small"><i class="bi bi-arrow-right-circle me-1"></i>One-Click Login</div>
-                            </div>
-                        </div>
-
-                        <!-- Customer Service Officer / Live Chat Agent -->
-                        <div class="col-sm-6">
-                            <div class="card h-100 border p-3 card-custom" style="cursor: pointer;" onclick="quickLogin('agent_kamal', '123456')">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-info-subtle text-info p-2">
-                                            <i class="bi bi-headset fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">Minsara M.D.M.</div>
-                                            <small class="text-muted">Role: Live Chat Agent</small>
-                                        </div>
-                                    </div>
-                                    <span class="badge bg-info text-dark" style="font-size: 0.65rem;">OFFICER</span>
-                                </div>
-                                <small class="text-muted">Live chat multi-queue, triage & assign complaints to departments.</small>
-                                <div class="mt-2 text-info fw-bold small"><i class="bi bi-arrow-right-circle me-1"></i>One-Click Login</div>
-                            </div>
-                        </div>
-
-                        <!-- Department Staff -->
-                        <div class="col-sm-6">
-                            <div class="card h-100 border p-3 card-custom" style="cursor: pointer;" onclick="quickLogin('staff_tech', '123456')">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-success-subtle text-success p-2">
-                                            <i class="bi bi-tools fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">Nuwan Pradeep</div>
-                                            <small class="text-muted">Role: Tech Staff</small>
-                                        </div>
-                                    </div>
-                                    <span class="badge bg-success" style="font-size: 0.65rem;">STAFF</span>
-                                </div>
-                                <small class="text-muted">Investigate technical tickets, add resolution notes & close issues.</small>
-                                <div class="mt-2 text-success fw-bold small"><i class="bi bi-arrow-right-circle me-1"></i>One-Click Login</div>
-                            </div>
-                        </div>
-
-                        <!-- Operations Manager -->
-                        <div class="col-sm-6">
-                            <div class="card h-100 border p-3 card-custom" style="cursor: pointer;" onclick="quickLogin('manager', '123456')">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-warning-subtle text-warning p-2">
-                                            <i class="bi bi-graph-up-arrow fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">Dissanayake R.D.</div>
-                                            <small class="text-muted">Role: Operations Mgr</small>
-                                        </div>
-                                    </div>
-                                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">MANAGER</span>
-                                </div>
-                                <small class="text-muted">Threshold-based regional spike alerts, CSAT trends & analytics.</small>
-                                <div class="mt-2 text-warning fw-bold small"><i class="bi bi-arrow-right-circle me-1"></i>One-Click Login</div>
-                            </div>
-                        </div>
-
-                        <!-- Customer Care Manager -->
-                        <div class="col-sm-6">
-                            <div class="card h-100 border p-3 card-custom" style="cursor: pointer;" onclick="quickLogin('cc_manager', '123456')">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-purple-subtle text-purple p-2">
-                                            <i class="bi bi-star-half fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">Denuwantha A.Y.</div>
-                                            <small class="text-muted">Role: CC Manager</small>
-                                        </div>
-                                    </div>
-                                    <span class="badge bg-purple text-white" style="font-size: 0.65rem;">MANAGER</span>
-                                </div>
-                                <small class="text-muted">CSAT scores computation, negative feedback follow-up actions.</small>
-                                <div class="mt-2 text-purple fw-bold small"><i class="bi bi-arrow-right-circle me-1"></i>One-Click Login</div>
-                            </div>
-                        </div>
-
-                        <!-- System Administrator -->
-                        <div class="col-sm-6">
-                            <div class="card h-100 border p-3 card-custom" style="cursor: pointer;" onclick="quickLogin('admin', '123456')">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-danger-subtle text-danger p-2">
-                                            <i class="bi bi-shield-lock fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">Fernando T.S.V.</div>
-                                            <small class="text-muted">Role: Admin</small>
-                                        </div>
-                                    </div>
-                                    <span class="badge bg-danger" style="font-size: 0.65rem;">ADMIN</span>
-                                </div>
-                                <small class="text-muted">Manage user roles, account activation, system audit logs.</small>
-                                <div class="mt-2 text-danger fw-bold small"><i class="bi bi-arrow-right-circle me-1"></i>One-Click Login</div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
@@ -261,13 +123,6 @@
     <script src="/js/app.js"></script>
 
     <script>
-        // Quick login helper
-        async function quickLogin(username, password) {
-            document.getElementById('loginUsername').value = username;
-            document.getElementById('loginPassword').value = password;
-            await doLogin(username, password);
-        }
-
         async function doLogin(username, password) {
             const btn = document.getElementById('loginBtn');
             btn.disabled = true;
