@@ -23,9 +23,6 @@ public class AlertSchedulerService {
     @Autowired
     private ComplaintRepository complaintRepository;
 
-    @Autowired
-    private UserService userService;
-
     /**
      * Automated Threshold-Based Complaint Alerts:
      * Scheduled job periodically counts complaints raised per region over a rolling time window;

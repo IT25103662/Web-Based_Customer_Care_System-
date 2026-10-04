@@ -28,6 +28,12 @@ public class ReportingService {
     @Autowired
     private AlertThresholdRepository alertThresholdRepository;
 
+    @Autowired
+    private com.lankaconnect.ccms.repository.GeneratedReportRepository generatedReportRepository;
+
+    @Autowired
+    private com.lankaconnect.ccms.observer.RegionalSpikeAlertPublisher alertPublisher;
+
     public Map<String, Object> getDashboardStatistics() {
         Map<String, Object> stats = new HashMap<>();
 
@@ -102,6 +108,11 @@ public class ReportingService {
             long count = complaintRepository.countByRegionSince(at.getRegion(), since);
 
             boolean isSpike = count >= at.getThresholdCount();
+            if (isSpike && alertPublisher != null) {
+                // Notify Observers (Observer Pattern)
+                alertPublisher.notifyObservers(at.getRegion(), count, at.getThresholdCount(), at.getTimeWindowHours());
+            }
+
             Map<String, Object> alert = new HashMap<>();
             alert.put("region", at.getRegion());
             alert.put("currentCount", count);
@@ -120,8 +131,35 @@ public class ReportingService {
         return triggered;
     }
 
+
     public List<AlertThreshold> getAllThresholds() {
         return alertThresholdRepository.findAll();
+    }
+
+    public Optional<AlertThreshold> getThresholdById(Long id) {
+        return alertThresholdRepository.findById(id);
+    }
+
+    public AlertThreshold updateThreshold(Long id, String region, int thresholdCount, int timeWindowHours, Boolean active) {
+        AlertThreshold threshold = alertThresholdRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Threshold not found"));
+        if (region != null && !region.trim().isEmpty()) {
+            threshold.setRegion(region);
+        }
+        if (thresholdCount > 0) {
+            threshold.setThresholdCount(thresholdCount);
+        }
+        if (timeWindowHours > 0) {
+            threshold.setTimeWindowHours(timeWindowHours);
+        }
+        if (active != null) {
+            threshold.setActive(active);
+        }
+        return alertThresholdRepository.save(threshold);
+    }
+
+    public void deleteThreshold(Long id) {
+        alertThresholdRepository.deleteById(id);
     }
 
     public AlertThreshold saveOrUpdateThreshold(String region, int thresholdCount, int timeWindowHours) {
@@ -137,4 +175,27 @@ public class ReportingService {
         }
         return alertThresholdRepository.save(threshold);
     }
+
+    public List<com.lankaconnect.ccms.model.Complaint> getComplaintsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null) startDate = LocalDateTime.of(2000, 1, 1, 0, 0);
+        if (endDate == null) endDate = LocalDateTime.of(2099, 12, 31, 23, 59, 59);
+        return complaintRepository.findComplaintsBetweenDates(startDate, endDate);
+    }
+
+    public com.lankaconnect.ccms.model.GeneratedReport saveReport(com.lankaconnect.ccms.model.GeneratedReport report) {
+        return generatedReportRepository.save(report);
+    }
+
+    public List<com.lankaconnect.ccms.model.GeneratedReport> getAllGeneratedReports() {
+        return generatedReportRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    public Optional<com.lankaconnect.ccms.model.GeneratedReport> getReportById(Long id) {
+        return generatedReportRepository.findById(id);
+    }
+
+    public void deleteReport(Long id) {
+        generatedReportRepository.deleteById(id);
+    }
 }
+
