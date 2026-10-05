@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | LankaConnect Customer Care System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Top header -->
+    <header class="navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="brand-badge"><i class="bi bi-headset me-2"></i>LankaConnect</span>
+                <span class="text-muted small d-none d-sm-inline">| Enterprise Customer Care Platform</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container my-auto py-5">
+        <div class="row justify-content-center">
+            
+            <!-- Centered Login / Register Box -->
+            <div class="col-lg-5 col-md-7 col-sm-10">
+                <div class="card card-custom p-4 shadow-lg border-0">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 56px; height: 56px;">
+                            <i class="bi bi-lock-fill fs-3"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-1">Welcome to LankaConnect</h4>
+                        <p class="text-muted small">Sign in to your account or register as a new customer</p>
+                    </div>
+
+                    <!-- Nav Tabs -->
+                    <ul class="nav nav-pills nav-fill mb-4 bg-light p-1 rounded-3 border" id="authTabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active fw-semibold" id="login-tab" data-bs-toggle="pill" data-bs-target="#login-panel" type="button">Sign In</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-semibold" id="register-tab" data-bs-toggle="pill" data-bs-target="#register-panel" type="button">New Customer</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="authTabContent">
+                        <!-- Sign In Tab -->
+                        <div class="tab-pane fade show active" id="login-panel" role="tabpanel">
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Username</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
+                                        <input type="text" id="loginUsername" class="form-control" placeholder="e.g. customer1 or admin" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
+                                        <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" required>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+                                        <label class="form-check-label small text-muted" for="rememberMe">Remember me</label>
+                                    </div>
+                                </div>
+                                <button type="submit" id="loginBtn" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Register Tab (Customers) -->
+                        <div class="tab-pane fade" id="register-panel" role="tabpanel">
+                            <form id="registerForm">
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold text-muted">Full Name</label>
+                                    <input type="text" id="regFullName" class="form-control form-control-sm" placeholder="e.g. Anura Bandara" required>
+                                </div>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted">Email</label>
+                                        <input type="email" id="regEmail" class="form-control form-control-sm" placeholder="anura@gmail.com" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted">Phone</label>
+                                        <input type="tel" id="regPhone" class="form-control form-control-sm" placeholder="0771234567" required>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted">Username</label>
+                                        <input type="text" id="regUsername" class="form-control form-control-sm" placeholder="anura_b" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted">Password</label>
+                                        <input type="password" id="regPassword" class="form-control form-control-sm" placeholder="••••••••" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Subscription Since (For Loyalty Tier)</label>
+                                    <input type="date" id="regDate" class="form-control form-control-sm">
+                                    <small class="text-muted" style="font-size: 0.7rem;">(>12 months = Gold badge, 6-12 months = Silver badge, <6 months = Bronze badge)</small>
+                                </div>
+                                <button type="submit" id="regBtn" class="btn btn-success w-100 py-2 fw-bold shadow-sm">
+                                    <i class="bi bi-person-plus me-2"></i>Create Customer Account
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+
+    <script>
+        async function doLogin(username, password) {
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    App.showToast(`Welcome back, ${data.user.fullName}!`, 'success');
+                    setTimeout(() => App.redirectUserByRole(data.user.role), 600);
+                } else {
+                    App.showToast(data.message || 'Login failed', 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Sign In';
+                }
+            } catch (err) {
+                App.showToast('Network error during authentication', 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Sign In';
+            }
+        }
+
+        // Login form submit handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+            if (u && p) {
+                await doLogin(u, p);
+            }
+        });
+
+        // Register form submit handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fullName = document.getElementById('regFullName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const regDate = document.getElementById('regDate').value || new Date().toISOString().split('T')[0];
+
+            const btn = document.getElementById('regBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account...';
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName, email, phone, username, password,
+                        role: 'CUSTOMER',
+                        subscriptionStartDate: regDate
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    App.showToast('Registration successful! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = '/customer-dashboard.html', 800);
+                } else {
+                    App.showToast(data.message || 'Registration failed', 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-person-plus me-2"></i>Create Customer Account';
+                }
+            } catch (err) {
+                App.showToast('Network error during registration', 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-person-plus me-2"></i>Create Customer Account';
+            }
+        });
+    </script>
+</body>
+</html>
