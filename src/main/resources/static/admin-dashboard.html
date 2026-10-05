@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Administration & Audit | LankaConnect CCMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Top Navbar -->
+    <nav class="navbar-custom">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="brand-badge"><i class="bi bi-shield-lock me-2"></i>LankaConnect</span>
+                <span class="fw-bold text-dark ms-2">System Administration & Security Console</span>
+            </div>
+            <div id="navbarUserSnippet"></div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4">
+
+        <!-- Top Stat Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div>
+                        <div class="text-muted small fw-semibold">Total Registered Users</div>
+                        <h3 class="fw-bold text-dark mb-0" id="adminStatUsers">0</h3>
+                    </div>
+                    <div class="stat-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div>
+                        <div class="text-muted small fw-semibold">Active Customers</div>
+                        <h3 class="fw-bold text-success mb-0" id="adminStatCust">0</h3>
+                    </div>
+                    <div class="stat-icon bg-success-subtle text-success">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div>
+                        <div class="text-muted small fw-semibold">Support Officers & Staff</div>
+                        <h3 class="fw-bold text-info mb-0" id="adminStatStaff">0</h3>
+                    </div>
+                    <div class="stat-icon bg-info-subtle text-info">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div>
+                        <div class="text-muted small fw-semibold">Security Audit Events</div>
+                        <h3 class="fw-bold text-danger mb-0" id="adminStatLogs">0</h3>
+                    </div>
+                    <div class="stat-icon bg-danger-subtle text-danger">
+                        <i class="bi bi-journal-medical"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Workspace Tabs -->
+        <div class="card card-custom p-0 border-0 shadow-sm overflow-hidden mb-4">
+            <div class="bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs card-header-tabs border-0" id="adminTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-bold text-dark" data-bs-toggle="tab" href="#tab-users">
+                            <i class="bi bi-person-gear me-2 text-primary"></i>User Accounts & Roles Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-dark" data-bs-toggle="tab" href="#tab-audit">
+                            <i class="bi bi-shield-shaded me-2 text-danger"></i>System Activity & Audit Log
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-dark" data-bs-toggle="tab" href="#tab-system">
+                            <i class="bi bi-hdd-network me-2 text-success"></i>System Health & SQL Database
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="bi bi-person-plus-fill me-1"></i> Add System User
+                    </button>
+                    <button class="btn btn-sm btn-light border" onclick="loadAdminData()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                </div>
+            </div>
+
+            <div class="tab-content p-4 bg-white" id="adminTabContent">
+                
+                <!-- Tab 1: User Management -->
+                <div class="tab-pane fade show active" id="tab-users">
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Full Name</th>
+                                    <th>Username & Email</th>
+                                    <th>Assigned Role</th>
+                                    <th>Department</th>
+                                    <th>Loyalty Tier</th>
+                                    <th>Status</th>
+                                    <th>Registered Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr><td colspan="9" class="text-center py-4 text-muted">Loading users...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Activity Audit Log -->
+                <div class="tab-pane fade" id="tab-audit">
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-dark mb-1">Chronological Security & Activity Audit Log</h6>
+                        <small class="text-muted">Real-time immutable log of user logins, role modifications, complaint assignments, and system transactions.</small>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Event Timestamp</th>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Action Type</th>
+                                    <th>Activity Details</th>
+                                    <th>Client IP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody">
+                                <tr><td colspan="6" class="text-center py-4 text-muted">Loading audit logs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal: Edit User Role & Department -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-gear me-2"></i>Edit User Permissions & Role</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editUserForm" onsubmit="submitEditUser(event)">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="editUserId">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">User Account</label>
+                            <input type="text" id="editUserDisplay" class="form-control bg-light" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">System Role *</label>
+                            <select id="editRoleSelect" class="form-select" onchange="toggleDeptInput(this.value)" required>
+                                <option value="CUSTOMER">CUSTOMER (Client)</option>
+                                <option value="AGENT">AGENT (Customer Service Officer / Live Chat)</option>
+                                <option value="STAFF">STAFF (Department Specialist / QA)</option>
+                                <option value="MANAGER">MANAGER (Customer Care / Operations Mgr)</option>
+                                <option value="ADMIN">ADMIN (System Administrator)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="editDeptGroup">
+                            <label class="form-label fw-bold small text-muted">Department</label>
+                            <select id="editDeptSelect" class="form-select">
+                                <option value="">None / General</option>
+                                <option value="Technical Department">Technical Department</option>
+                                <option value="Billing Department">Billing Department</option>
+                                <option value="Network Department">Network Department</option>
+                                <option value="Customer Operations">Customer Operations</option>
+                                <option value="Executive Management">Executive Management</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Account Status</label>
+                            <select id="editActiveSelect" class="form-select">
+                                <option value="true">Active (Access Allowed)</option>
+                                <option value="false">Deactivated (Access Suspended)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4">Update User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add New System User -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-plus-fill me-2"></i>Create New System User</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addUserForm" onsubmit="submitNewUser(event)">
+                    <div class="modal-body p-4">
+                        <div class="mb-2">
+                            <label class="form-label fw-bold small text-muted">Full Name *</label>
+                            <input type="text" id="addFullName" class="form-control" required>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Username *</label>
+                                <input type="text" id="addUsername" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Password *</label>
+                                <input type="password" id="addPassword" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Email *</label>
+                                <input type="email" id="addEmail" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Phone</label>
+                                <input type="tel" id="addPhone" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Role *</label>
+                                <select id="addRoleSelect" class="form-select" required>
+                                    <option value="CUSTOMER">CUSTOMER</option>
+                                    <option value="AGENT">AGENT (Support Officer)</option>
+                                    <option value="STAFF">STAFF (Department)</option>
+                                    <option value="MANAGER">MANAGER</option>
+                                    <option value="ADMIN">ADMIN</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Department</label>
+                                <select id="addDeptSelect" class="form-select">
+                                    <option value="">None</option>
+                                    <option value="Technical Department">Technical</option>
+                                    <option value="Billing Department">Billing</option>
+                                    <option value="Network Department">Network</option>
+                                    <option value="Customer Support">Customer Support</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4">Create User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+
+    <script>
+        let currentAdmin = null;
+        let allUsers = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentAdmin = await App.initAuth(['ADMIN']);
+            if (currentAdmin) {
+                await loadAdminData();
+            }
+        });
+
+        async function loadAdminData() {
+            await Promise.all([
+                loadUsers(),
+                loadAuditLogs()
+            ]);
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/users');
+                allUsers = await res.json();
+
+                // Stats
+                document.getElementById('adminStatUsers').innerText = allUsers.length;
+                document.getElementById('adminStatCust').innerText = allUsers.filter(u => u.role === 'CUSTOMER').length;
+                document.getElementById('adminStatStaff').innerText = allUsers.filter(u => u.role === 'AGENT' || u.role === 'STAFF').length;
+
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = allUsers.map(u => {
+                    let loyaltyHtml = '<span class="text-muted small">N/A</span>';
+                    if (u.role === 'CUSTOMER' && u.loyaltyTier) {
+                        const bClass = u.loyaltyTier === 'GOLD' ? 'badge-gold' : u.loyaltyTier === 'SILVER' ? 'badge-silver' : 'badge-bronze';
+                        loyaltyHtml = `<span class="${bClass}" style="font-size: 0.7rem;">${u.loyaltyTier}</span>`;
+                    }
+
+                    return `
+                        <tr>
+                            <td class="fw-bold text-muted">#${u.id}</td>
+                            <td class="fw-bold text-dark">${u.fullName}</td>
+                            <td>
+                                <div>${u.username}</div>
+                                <small class="text-muted">${u.email}</small>
+                            </td>
+                            <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle">${u.role}</span></td>
+                            <td>${u.department || '<span class="text-muted">-</span>'}</td>
+                            <td>${loyaltyHtml}</td>
+                            <td>
+                                ${u.active ? '<span class="badge bg-success">ACTIVE</span>' : '<span class="badge bg-danger">INACTIVE</span>'}
+                            </td>
+                            <td>${App.formatDate(u.createdAt)}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-sm btn-outline-dark" onclick="openEditUserModal(${u.id})">
+                                        <i class="bi bi-gear-fill"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUserCrud(${u.id})">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadAuditLogs() {
+            try {
+                const res = await fetch('/api/users/activity-logs');
+                const logs = await res.json();
+                document.getElementById('adminStatLogs').innerText = logs.length;
+
+                const tbody = document.getElementById('auditTableBody');
+                tbody.innerHTML = logs.map(l => `
+                    <tr>
+                        <td><small class="text-muted">${App.formatDate(l.timestamp)}</small></td>
+                        <td class="fw-bold text-dark">${l.username || 'Anonymous'}</td>
+                        <td><span class="badge bg-light text-dark border">${l.userRole || 'SYSTEM'}</span></td>
+                        <td><span class="badge bg-info-subtle text-info border">${l.action}</span></td>
+                        <td><div class="text-dark small">${l.details}</div></td>
+                        <td><code>${l.ipAddress || '127.0.0.1'}</code></td>
+                    </tr>
+                `).join('');
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function openEditUserModal(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editUserDisplay').value = `${user.fullName} (@${user.username})`;
+            document.getElementById('editRoleSelect').value = user.role;
+            document.getElementById('editDeptSelect').value = user.department || '';
+            document.getElementById('editActiveSelect').value = user.active.toString();
+
+            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            modal.show();
+        }
+
+        function toggleDeptInput(role) {
+            // Loyalty tier is calculated automatically for CUSTOMER only
+        }
+
+        async function submitEditUser(e) {
+            e.preventDefault();
+            const id = document.getElementById('editUserId').value;
+            const role = document.getElementById('editRoleSelect').value;
+            const department = document.getElementById('editDeptSelect').value;
+            const active = document.getElementById('editActiveSelect').value === 'true';
+
+            try {
+                const res = await fetch(`/api/users/manage/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role, department, active })
+                });
+
+                if (res.ok) {
+                    App.showToast('User account updated successfully!', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                    await loadAdminData();
+                } else {
+                    App.showToast('Failed to update user', 'danger');
+                }
+            } catch (e) {
+                App.showToast('Error updating user', 'danger');
+            }
+        }
+
+        async function submitNewUser(e) {
+            e.preventDefault();
+            const payload = {
+                fullName: document.getElementById('addFullName').value.trim(),
+                username: document.getElementById('addUsername').value.trim(),
+                password: document.getElementById('addPassword').value.trim(),
+                email: document.getElementById('addEmail').value.trim(),
+                phone: document.getElementById('addPhone').value.trim(),
+                role: document.getElementById('addRoleSelect').value,
+                department: document.getElementById('addDeptSelect').value
+            };
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    App.showToast('New user account created successfully!', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                    document.getElementById('addUserForm').reset();
+                    await loadAdminData();
+                } else {
+                    const err = await res.json();
+                    App.showToast(err.message || 'Error creating user', 'danger');
+                }
+            } catch (e) {
+                App.showToast('Network error creating user', 'danger');
+            }
+        }
+
+        async function deleteUserCrud(id) {
+            if (!confirm('Are you sure you want to delete this user account?')) return;
+            try {
+                const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    App.showToast('User account deleted successfully', 'success');
+                    await loadAdminData();
+                } else {
+                    App.showToast('Failed to delete user', 'danger');
+                }
+            } catch (e) {
+                App.showToast('Error deleting user', 'danger');
+            }
+        }
+    </script>
+</body>
+</html>
+
+
