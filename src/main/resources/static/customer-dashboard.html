@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal | LankaConnect CCMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Top Navbar -->
+    <nav class="navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="brand-badge"><i class="bi bi-headset me-2"></i>LankaConnect</span>
+                <span class="fw-bold text-dark d-none d-md-inline ms-2">Customer Care Portal</span>
+            </div>
+            <div id="navbarUserSnippet"></div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+
+        <!-- Customer Welcome & Loyalty Tier Banner -->
+        <div class="card card-custom p-4 mb-4 bg-white border-0 shadow-sm">
+            <div class="row align-items-center g-3">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <h4 class="fw-bold text-dark mb-0" id="welcomeHeading">Welcome, Customer</h4>
+                        <span id="loyaltyBadgeContainer"></span>
+                    </div>
+                    <p class="text-muted small mb-0" id="loyaltyExplanation">
+                        <i class="bi bi-info-circle me-1"></i>Loyalty badges are awarded automatically based on your active subscription duration.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn btn-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#newComplaintModal">
+                        <i class="bi bi-plus-circle me-1"></i> Submit New Complaint
+                    </button>
+                    <button class="btn btn-outline-primary fw-bold ms-2" onclick="openChatDrawer()">
+                        <i class="bi bi-chat-dots-fill me-1"></i> Live Chat
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Summary Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div>
+                        <div class="text-muted small fw-semibold">My Total Complaints</div>
+                        <h3 class="fw-bold text-dark mb-0" id="statTotalComplaints">0</h3>
+                    </div>
+                    <div class="stat-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div>
+                        <div class="text-muted small fw-semibold">In Progress / Investigating</div>
+                        <h3 class="fw-bold text-warning mb-0" id="statActiveComplaints">0</h3>
+                    </div>
+                    <div class="stat-icon bg-warning-subtle text-warning">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div>
+                        <div class="text-muted small fw-semibold">Resolved Issues</div>
+                        <h3 class="fw-bold text-success mb-0" id="statResolvedComplaints">0</h3>
+                    </div>
+                    <div class="stat-icon bg-success-subtle text-success">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <div class="card card-custom p-0 border-0 shadow-sm overflow-hidden mb-4">
+            <div class="bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs card-header-tabs border-0" id="custTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-bold text-dark" id="tab-tickets-link" data-bs-toggle="tab" href="#tab-tickets">
+                            <i class="bi bi-ticket-detailed me-2 text-primary"></i>My Support Tickets & History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-dark" id="tab-chat-link" data-bs-toggle="tab" href="#tab-chat">
+                            <i class="bi bi-chat-left-text-fill me-2 text-primary"></i>Live Chat Support
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-dark" id="tab-profile-link" data-bs-toggle="tab" href="#tab-profile">
+                            <i class="bi bi-person-badge me-2 text-primary"></i>My Profile & Loyalty
+                        </a>
+                    </li>
+                </ul>
+                <button class="btn btn-sm btn-light border" onclick="loadCustomerData()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+            </div>
+
+            <div class="tab-content p-4 bg-white" id="custTabContent">
+                
+                <!-- Tab 1: Tickets Table -->
+                <div class="tab-pane fade show active" id="tab-tickets">
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Ticket Code</th>
+                                    <th>Complaint Ref</th>
+                                    <th>Subject & Category</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Submitted Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticketsTableBody">
+                                <tr><td colspan="8" class="text-center py-4 text-muted">Loading your tickets...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Live Chat Tab -->
+                <div class="tab-pane fade" id="tab-chat">
+                    <div class="row g-3">
+                        <div class="col-lg-4">
+                            <div class="card p-3 border bg-light h-100">
+                                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-headset me-2 text-primary"></i>LankaConnect Live Desk</h6>
+                                <p class="text-muted small">Connect with an available Customer Service Officer in real-time. Officers are ready to help with billing, technical, and connectivity inquiries.</p>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Inquiry Subject</label>
+                                    <input type="text" id="chatTopicInput" class="form-control form-control-sm" placeholder="e.g., Billing clarification or line outage">
+                                </div>
+                                <button class="btn btn-primary btn-sm fw-bold w-100" id="startChatBtn" onclick="startCustomerLiveChat()">
+                                    <i class="bi bi-chat-plus-fill me-1"></i> Start New Chat Session
+                                </button>
+                                
+                                <hr>
+                                <div class="small fw-bold text-muted mb-2">My Chat History</div>
+                                <div id="customerChatHistoryList" class="list-group list-group-flush small" style="max-height: 200px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="chat-container shadow-sm">
+                                <div class="bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold text-dark" id="chatAgentName"><i class="bi bi-circle-fill text-success me-1" style="font-size: 0.6rem;"></i>Live Support Agent</div>
+                                        <small class="text-muted" id="chatSessionStatus">Waiting to initiate...</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger" id="closeChatBtn" style="display:none;" onclick="closeCustomerChat()">
+                                        <i class="bi bi-x-circle me-1"></i> End Chat
+                                    </button>
+                                </div>
+                                <div class="chat-messages" id="chatMessagesBox">
+                                    <div class="text-center text-muted my-auto py-5">
+                                        <i class="bi bi-chat-quote fs-1 text-secondary opacity-50"></i>
+                                        <p class="small mt-2">Start a chat session or select a conversation from history</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white border-top">
+                                    <form id="chatSendForm" class="d-flex gap-2" onsubmit="sendCustomerChatMessage(event)">
+                                        <input type="file" id="chatFileInput" style="display:none;" onchange="handleChatFileUpload(event)">
+                                        <button type="button" class="btn btn-light border" onclick="document.getElementById('chatFileInput').click()" title="Attach File / Screenshot">
+                                            <i class="bi bi-paperclip text-muted"></i>
+                                        </button>
+                                        <input type="text" id="chatMessageInput" class="form-control" placeholder="Type your message here..." autocomplete="off">
+                                        <button type="submit" id="chatSendBtn" class="btn btn-primary px-4 fw-bold" disabled>
+                                            <i class="bi bi-send-fill"></i>
+                                        </button>
+                                    </form>
+                                    <div id="fileUploadPreview" class="small text-muted mt-1" style="display:none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Profile & Loyalty Tier -->
+                <div class="tab-pane fade" id="tab-profile">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Personal Profile</h6>
+                            <form id="profileUpdateForm" onsubmit="updateCustomerProfile(event)">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Full Name</label>
+                                    <input type="text" id="profFullName" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Email Address</label>
+                                    <input type="email" id="profEmail" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Contact Phone</label>
+                                    <input type="tel" id="profPhone" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary fw-bold shadow-sm">Save Profile Changes</button>
+                            </form>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card p-4 border bg-light h-100">
+                                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-award-fill me-2 text-warning"></i>Customer Loyalty Program</h6>
+                                <div class="p-3 bg-white border rounded-3 mb-3 text-center">
+                                    <div class="text-muted small">Your Active Loyalty Tier</div>
+                                    <div class="my-2" id="profileLoyaltyBadge"></div>
+                                    <div class="small text-muted" id="subscriptionDurationText">Subscribed Since: Loading...</div>
+                                </div>
+
+                                <div class="small text-muted">
+                                    <div class="fw-bold text-dark mb-1">Tier Thresholds:</div>
+                                    <ul class="mb-0 ps-3">
+                                        <li><strong>Bronze Tier:</strong> 0 - 6 Months active service</li>
+                                        <li><strong>Silver Tier:</strong> 6 - 12 Months active service</li>
+                                        <li><strong>Gold Tier:</strong> 12+ Months active service (Priority Live Chat routing & Fast-track resolution)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal: Submit Complaint -->
+    <div class="modal fade" id="newComplaintModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-plus-fill me-2"></i>Submit Customer Complaint</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="newComplaintForm" onsubmit="submitComplaintForm(event)">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Complaint Title / Summary *</label>
+                            <input type="text" id="compTitle" class="form-control" placeholder="e.g., Optical fiber cable snapped outside premises" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-muted">Category *</label>
+                                <select id="compCategory" class="form-select" required>
+                                    <option value="Network">Network / Broadband</option>
+                                    <option value="Technical">Technical & Hardware</option>
+                                    <option value="Billing">Billing & Payments</option>
+                                    <option value="Customer Service">Customer Service</option>
+                                    <option value="Other">Other Inquiry</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-muted">Region *</label>
+                                <select id="compRegion" class="form-select" required>
+                                    <option value="Western">Western Province</option>
+                                    <option value="Central">Central Province</option>
+                                    <option value="Southern">Southern Province</option>
+                                    <option value="Northern">Northern Province</option>
+                                    <option value="Eastern">Eastern Province</option>
+                                    <option value="North Western">North Western Province</option>
+                                    <option value="North Central">North Central Province</option>
+                                    <option value="Uva">Uva Province</option>
+                                    <option value="Sabaragamuwa">Sabaragamuwa Province</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-muted">Priority *</label>
+                                <select id="compPriority" class="form-select" required>
+                                    <option value="LOW">Low (Non-urgent)</option>
+                                    <option value="MEDIUM" selected>Medium (Standard)</option>
+                                    <option value="HIGH">High (Urgent)</option>
+                                    <option value="CRITICAL">Critical (Total Outage)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Detailed Description *</label>
+                            <textarea id="compDescription" rows="4" class="form-control" placeholder="Provide complete details, error codes, and symptoms..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Attach Evidence / Screenshot (Optional)</label>
+                            <input type="file" id="compAttachment" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="submitCompBtn" class="btn btn-primary fw-bold px-4">
+                            <i class="bi bi-check2-circle me-1"></i> Submit Complaint & Generate Ticket
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: View Ticket Timeline & Audit History -->
+    <div class="modal fade" id="ticketDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold" id="modalTicketTitle">Ticket Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="modalTicketBody">
+                    <!-- Progress Stepper -->
+                    <div class="progress-stepper" id="ticketStepper"></div>
+                    <hr>
+                    <div id="ticketDetailContent"></div>
+                    <h6 class="fw-bold text-dark mt-4 mb-2"><i class="bi bi-clock-history me-1 text-primary"></i>Audit Trail & Status History</h6>
+                    <div id="ticketHistoryTimeline" class="list-group list-group-flush border rounded-3 p-2 small bg-light"></div>
+                </div>
+                <div class="modal-footer bg-light" id="modalTicketFooter">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: CSAT Feedback Rating -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-star-fill me-2"></i>Rate Your Support Experience</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="feedbackForm" onsubmit="submitFeedbackForm(event)">
+                    <div class="modal-body p-4 text-center">
+                        <input type="hidden" id="fbTicketId">
+                        <input type="hidden" id="fbTicketCode">
+                        <input type="hidden" id="fbComplaintId">
+                        <input type="hidden" id="fbComplaintCode">
+
+                        <p class="text-muted small mb-3">Please rate the resolution quality and service timeliness for Ticket <strong id="fbTicketDisplayCode"></strong>:</p>
+
+                        <div class="star-rating mb-3" id="starRatingContainer">
+                            <span class="star" data-val="1" onclick="setRating(1)">★</span>
+                            <span class="star" data-val="2" onclick="setRating(2)">★</span>
+                            <span class="star" data-val="3" onclick="setRating(3)">★</span>
+                            <span class="star" data-val="4" onclick="setRating(4)">★</span>
+                            <span class="star" data-val="5" onclick="setRating(5)">★</span>
+                        </div>
+                        <input type="hidden" id="fbRatingVal" value="5">
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold small text-muted">Satisfaction Category</label>
+                            <select id="fbCategory" class="form-select form-select-sm">
+                                <option value="Issue Resolution">Issue Resolution Quality</option>
+                                <option value="Officer Behavior">Officer Professionalism</option>
+                                <option value="Timeliness">Timeliness / Speed</option>
+                                <option value="System Ease">System Usability</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold small text-muted">Comments / Review</label>
+                            <textarea id="fbComments" rows="3" class="form-control form-control-sm" placeholder="Share your feedback with management..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning fw-bold text-dark px-4">Submit CSAT Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+
+    <script>
+        let currentUser = null;
+        let customerTickets = [];
+        let activeChatSession = null;
+        let chatPollInterval = null;
+        let lastMessageId = 0;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentUser = await App.initAuth(['CUSTOMER']);
+            if (currentUser) {
+                renderCustomerHeader(currentUser);
+                await loadCustomerData();
+                await loadCustomerChatHistory();
+            }
+        });
+
+        function renderCustomerHeader(user) {
+            document.getElementById('welcomeHeading').innerText = `Welcome, ${user.fullName}`;
+            
+            let badgeClass = 'badge-bronze';
+            if (user.loyaltyTier === 'GOLD') badgeClass = 'badge-gold';
+            else if (user.loyaltyTier === 'SILVER') badgeClass = 'badge-silver';
+
+            document.getElementById('loyaltyBadgeContainer').innerHTML = `
+                <span class="${badgeClass}"><i class="bi bi-award-fill me-1"></i>${user.loyaltyTier || 'BRONZE'} MEMBER</span>
+            `;
+
+            document.getElementById('profileLoyaltyBadge').innerHTML = `
+                <span class="${badgeClass} fs-5 px-3 py-2"><i class="bi bi-award-fill me-1"></i>${user.loyaltyTier || 'BRONZE'}</span>
+            `;
+
+            document.getElementById('subscriptionDurationText').innerText = 
+                `Subscribed Since: ${user.subscriptionStartDate || 'Recent'} (Tier: ${user.loyaltyTier || 'BRONZE'})`;
+
+            document.getElementById('profFullName').value = user.fullName || '';
+            document.getElementById('profEmail').value = user.email || '';
+            document.getElementById('profPhone').value = user.phone || '';
+        }
+
+        async function loadCustomerData() {
+            try {
+                const res = await fetch(`/api/tickets/customer/${currentUser.id}`);
+                customerTickets = await res.json();
+
+                // Compute Stats
+                document.getElementById('statTotalComplaints').innerText = customerTickets.length;
+                const activeCount = customerTickets.filter(t => t.status !== 'RESOLVED' && t.status !== 'CLOSED').length;
+                const resolvedCount = customerTickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length;
+                document.getElementById('statActiveComplaints').innerText = activeCount;
+                document.getElementById('statResolvedComplaints').innerText = resolvedCount;
+
+                // Render Table
+                const tbody = document.getElementById('ticketsTableBody');
+                if (customerTickets.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No tickets found. Submit a complaint to create your first ticket!</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = customerTickets.map(t => {
+                    const isResolved = t.status === 'RESOLVED' || t.status === 'CLOSED';
+                    return `
+                        <tr>
+                            <td class="fw-bold text-primary">${t.ticketCode}</td>
+                            <td><span class="badge bg-light text-dark border">${t.complaintCode || 'N/A'}</span></td>
+                            <td>
+                                <div class="fw-semibold text-dark">${t.title}</div>
+                                <small class="text-muted">${t.assignedDepartment || 'General Support'}</small>
+                            </td>
+                            <td>${App.renderPriority(t.priority)}</td>
+                            <td>${App.renderStatus(t.status)}</td>
+                            <td>${t.assignedStaffName ? '<i class="bi bi-person me-1"></i>' + t.assignedStaffName : '<span class="text-muted">Awaiting Triage</span>'}</td>
+                            <td>${App.formatDate(t.createdAt)}</td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewTicketDetails(${t.id})" title="View Timeline">
+                                        <i class="bi bi-eye"></i> Track
+                                    </button>
+                                    ${isResolved ? `
+                                        <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="openFeedbackModal(${t.id}, '${t.ticketCode}', ${t.complaintId}, '${t.complaintCode}')" title="Leave CSAT Rating">
+                                            <i class="bi bi-star-fill"></i> Rate
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Error loading tickets:", err);
+            }
+        }
+
+        async function submitComplaintForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitCompBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+
+            const payload = {
+                title: document.getElementById('compTitle').value.trim(),
+                category: document.getElementById('compCategory').value,
+                region: document.getElementById('compRegion').value,
+                priority: document.getElementById('compPriority').value,
+                description: document.getElementById('compDescription').value.trim(),
+                customerId: currentUser.id,
+                customerName: currentUser.fullName,
+                customerEmail: currentUser.email,
+                customerPhone: currentUser.phone
+            };
+
+            try {
+                const res = await fetch('/api/complaints', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const saved = await res.json();
+                    App.showToast(`Complaint ${saved.complaintCode} submitted successfully! Ticket generated.`, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('newComplaintModal')).hide();
+                    document.getElementById('newComplaintForm').reset();
+                    await loadCustomerData();
+                } else {
+                    App.showToast('Failed to submit complaint', 'danger');
+                }
+            } catch (err) {
+                App.showToast('Error during complaint submission', 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Submit Complaint & Generate Ticket';
+            }
+        }
+
+        async function viewTicketDetails(ticketId) {
+            const ticket = customerTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+
+            document.getElementById('modalTicketTitle').innerText = `Ticket: ${ticket.ticketCode} - ${ticket.title}`;
+
+            // Render Stepper
+            const statuses = ['SUBMITTED', 'ASSIGNED', 'IN_INVESTIGATION', 'RESOLVED', 'CLOSED'];
+            const curIdx = statuses.indexOf(ticket.status) !== -1 ? statuses.indexOf(ticket.status) : 1;
+
+            document.getElementById('ticketStepper').innerHTML = statuses.map((st, i) => {
+                const isCompleted = i < curIdx;
+                const isActive = i === curIdx;
+                const cls = isActive ? 'active' : isCompleted ? 'completed' : '';
+                return `
+                    <div class="step-item ${cls}">
+                        <div class="step-circle">${isCompleted ? '<i class="bi bi-check"></i>' : (i + 1)}</div>
+                        <div class="small fw-semibold mt-1">${st.replace('_', ' ')}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('ticketDetailContent').innerHTML = `
+                <div class="row g-2 mb-3">
+                    <div class="col-6"><strong>Priority:</strong> ${App.renderPriority(ticket.priority)}</div>
+                    <div class="col-6"><strong>Current Status:</strong> ${App.renderStatus(ticket.status)}</div>
+                    <div class="col-6"><strong>Department:</strong> ${ticket.assignedDepartment || 'General Support'}</div>
+                    <div class="col-6"><strong>Assigned Officer:</strong> ${ticket.assignedStaffName || 'Triage Officer'}</div>
+                    <div class="col-6"><strong>Created At:</strong> ${App.formatDate(ticket.createdAt)}</div>
+                    <div class="col-6"><strong>SLA Target Date:</strong> ${App.formatDate(ticket.dueDate)}</div>
+                </div>
+            `;
+
+            // Load History
+            try {
+                const res = await fetch(`/api/tickets/${ticketId}/history`);
+                const history = await res.json();
+                document.getElementById('ticketHistoryTimeline').innerHTML = history.length > 0 ? history.map(h => `
+                    <div class="list-group-item bg-white mb-1 rounded border">
+                        <div class="d-flex justify-content-between">
+                            <strong>${h.changedBy || 'System'} (${h.userRole || 'SYSTEM'})</strong>
+                            <small class="text-muted">${App.formatDate(h.timestamp)}</small>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            Status changed: <span class="badge bg-light text-dark border">${h.previousStatus || 'INIT'}</span> -> <span class="badge bg-primary text-white">${h.newStatus}</span>
+                        </div>
+                        ${h.remarks ? `<div class="mt-1 text-dark small"><em>"${h.remarks}"</em></div>` : ''}
+                    </div>
+                `).join('') : '<div class="text-muted text-center py-2">No history recorded yet</div>';
+            } catch (e) {
+                console.error(e);
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('ticketDetailModal'));
+            modal.show();
+        }
+
+        // Live Chat Functions
+        function openChatDrawer() {
+            const chatTab = new bootstrap.Tab(document.getElementById('tab-chat-link'));
+            chatTab.show();
+        }
+
+        async function startCustomerLiveChat() {
+            const topic = document.getElementById('chatTopicInput').value.trim();
+            const btn = document.getElementById('startChatBtn');
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/chat/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customerId: currentUser.id,
+                        customerName: currentUser.fullName,
+                        topic: topic
+                    })
+                });
+
+                if (res.ok) {
+                    activeChatSession = await res.json();
+                    setupActiveChat(activeChatSession);
+                    App.showToast('Connected to live chat session!', 'success');
+                }
+            } catch (e) {
+                App.showToast('Failed to start chat', 'danger');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function setupActiveChat(session) {
+            activeChatSession = session;
+            lastMessageId = 0;
+            document.getElementById('chatAgentName').innerHTML = session.agentName ? 
+                `<i class="bi bi-circle-fill text-success me-1" style="font-size: 0.6rem;"></i>Officer: ${session.agentName}` :
+                `<i class="bi bi-circle-fill text-warning me-1" style="font-size: 0.6rem;"></i>Live Support Queue (Waiting for Officer)`;
+
+            document.getElementById('chatSessionStatus').innerText = `Session #${session.id} • Status: ${session.status}`;
+            document.getElementById('chatSendBtn').disabled = false;
+            document.getElementById('closeChatBtn').style.display = 'inline-block';
+
+            loadChatMessages(session.id);
+
+            if (chatPollInterval) clearInterval(chatPollInterval);
+            chatPollInterval = setInterval(() => pollChatMessages(session.id), 2500);
+        }
+
+        async function loadChatMessages(sessionId) {
+            try {
+                const res = await fetch(`/api/chat/messages/${sessionId}`);
+                const messages = await res.json();
+                renderChatMessages(messages);
+                if (messages.length > 0) {
+                    lastMessageId = messages[messages.length - 1].id;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function pollChatMessages(sessionId) {
+            try {
+                const res = await fetch(`/api/chat/messages/${sessionId}/poll?lastId=${lastMessageId}`);
+                const newMsgs = await res.json();
+                if (newMsgs && newMsgs.length > 0) {
+                    appendChatMessages(newMsgs);
+                    lastMessageId = newMsgs[newMsgs.length - 1].id;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderChatMessages(messages) {
+            const box = document.getElementById('chatMessagesBox');
+            if (messages.length === 0) {
+                box.innerHTML = '<div class="text-center text-muted py-4">No messages yet. Send a message to start!</div>';
+                return;
+            }
+            box.innerHTML = messages.map(m => formatMessageHtml(m)).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function appendChatMessages(newMsgs) {
+            const box = document.getElementById('chatMessagesBox');
+            newMsgs.forEach(m => {
+                box.insertAdjacentHTML('beforeend', formatMessageHtml(m));
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function formatMessageHtml(m) {
+            const isMe = m.senderId === currentUser.id && m.senderRole === 'CUSTOMER';
+            const isSystem = m.senderRole === 'SYSTEM';
+            const cls = isSystem ? 'system' : isMe ? 'customer' : 'agent';
+
+            return `
+                <div class="chat-bubble ${cls}">
+                    ${!isSystem ? `<strong style="font-size: 0.75rem; opacity: 0.85;">${m.senderName}</strong><br>` : ''}
+                    <div>${m.message}</div>
+                    ${m.fileName ? `<div class="mt-1 small"><i class="bi bi-file-earmark-arrow-down me-1"></i><a href="${m.fileUrl || '#'}" target="_blank" class="${isMe ? 'text-primary' : 'text-white'} text-decoration-underline">${m.fileName}</a></div>` : ''}
+                    <span class="chat-time">${App.formatDate(m.timestamp)}</span>
+                </div>
+            `;
+        }
+
+        async function sendCustomerChatMessage(e) {
+            e.preventDefault();
+            if (!activeChatSession) return;
+
+            const input = document.getElementById('chatMessageInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            try {
+                const payload = {
+                    sessionId: activeChatSession.id,
+                    senderId: currentUser.id,
+                    senderName: currentUser.fullName,
+                    senderRole: 'CUSTOMER',
+                    message: msg
+                };
+
+                input.value = '';
+                const res = await fetch('/api/chat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const saved = await res.json();
+                    appendChatMessages([saved]);
+                    lastMessageId = saved.id;
+                }
+            } catch (err) {
+                console.error("Failed to send message:", err);
+            }
+        }
+
+        async function loadCustomerChatHistory() {
+            try {
+                const res = await fetch(`/api/chat/customer/${currentUser.id}`);
+                const sessions = await res.json();
+                const list = document.getElementById('customerChatHistoryList');
+                if (sessions.length === 0) {
+                    list.innerHTML = '<div class="text-muted p-2">No previous chats</div>';
+                    return;
+                }
+                list.innerHTML = sessions.map(s => `
+                    <a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="loadHistoricalSession(${s.id})">
+                        <div class="d-flex justify-content-between">
+                            <strong>Session #${s.id}</strong>
+                            <small class="text-muted">${s.status}</small>
+                        </div>
+                        <div class="text-truncate text-muted small">${s.topic || 'General Inquiry'}</div>
+                    </a>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadHistoricalSession(id) {
+            try {
+                const res = await fetch(`/api/chat/messages/${id}`);
+                const msgs = await res.json();
+                setupActiveChat({ id: id, status: 'HISTORY', agentName: 'Support Archive' });
+                renderChatMessages(msgs);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function closeCustomerChat() {
+            if (!activeChatSession) return;
+            try {
+                await fetch(`/api/chat/close/${activeChatSession.id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        username: currentUser.username,
+                        userRole: 'CUSTOMER'
+                    })
+                });
+                App.showToast('Chat session closed', 'info');
+                document.getElementById('chatSessionStatus').innerText = 'Session Closed';
+                document.getElementById('closeChatBtn').style.display = 'none';
+                if (chatPollInterval) clearInterval(chatPollInterval);
+                await loadCustomerChatHistory();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Star rating & Feedback
+        function openFeedbackModal(ticketId, ticketCode, complaintId, complaintCode) {
+            document.getElementById('fbTicketId').value = ticketId;
+            document.getElementById('fbTicketCode').value = ticketCode;
+            document.getElementById('fbComplaintId').value = complaintId;
+            document.getElementById('fbComplaintCode').value = complaintCode;
+            document.getElementById('fbTicketDisplayCode').innerText = ticketCode;
+            setRating(5);
+
+            const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+            modal.show();
+        }
+
+        function setRating(val) {
+            document.getElementById('fbRatingVal').value = val;
+            const stars = document.querySelectorAll('#starRatingContainer .star');
+            stars.forEach(s => {
+                const sVal = parseInt(s.getAttribute('data-val'));
+                if (sVal <= val) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        }
+
+        async function submitFeedbackForm(e) {
+            e.preventDefault();
+            const rating = parseInt(document.getElementById('fbRatingVal').value);
+            const payload = {
+                ticketId: document.getElementById('fbTicketId').value,
+                ticketCode: document.getElementById('fbTicketCode').value,
+                complaintId: document.getElementById('fbComplaintId').value,
+                complaintCode: document.getElementById('fbComplaintCode').value,
+                customerId: currentUser.id,
+                customerName: currentUser.fullName,
+                rating: rating,
+                category: document.getElementById('fbCategory').value,
+                comments: document.getElementById('fbComments').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    App.showToast('Thank you for rating! Your CSAT feedback has been recorded.', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+                    document.getElementById('feedbackForm').reset();
+                } else {
+                    App.showToast('Failed to record feedback', 'danger');
+                }
+            } catch (e) {
+                App.showToast('Error recording feedback', 'danger');
+            }
+        }
+
+        async function updateCustomerProfile(e) {
+            e.preventDefault();
+            const payload = {
+                userId: currentUser.id,
+                fullName: document.getElementById('profFullName').value.trim(),
+                email: document.getElementById('profEmail').value.trim(),
+                phone: document.getElementById('profPhone').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/users/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    currentUser = await res.json();
+                    renderCustomerHeader(currentUser);
+                    App.renderNavbarUser(currentUser);
+                    App.showToast('Profile updated successfully!', 'success');
+                }
+            } catch (e) {
+                App.showToast('Error updating profile', 'danger');
+            }
+        }
+    </script>
+</body>
+</html>
